@@ -56,8 +56,8 @@ val_loader = list(val_loader)
 
 
 ### Train the model ###
-epochs = 3
-optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+epochs = 4
+optimizer = torch.optim.Adam(model.parameters(), lr=0.0005)
 total_steps = len(train_loader) * epochs
 scheduler = get_linear_schedule_with_warmup(optimizer, num_warmup_steps=0, num_training_steps=total_steps)
 criterion = torch.nn.CrossEntropyLoss()
@@ -100,3 +100,5 @@ for epoch in range(epochs):
     print(f'Training Loss: {train_loss:.4f}')
     print(f'Validation Loss: {val_loss:.4f}')
     print(f'Validation Accuracy: {val_acc:.4f}')
+
+torch.save(model, 'Bert-task_1.pt')
