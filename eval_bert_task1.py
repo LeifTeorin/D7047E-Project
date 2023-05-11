@@ -4,7 +4,6 @@ import torch
 from torch.utils.data import TensorDataset, DataLoader
 from transformers import BertTokenizer, BertForSequenceClassification, AdamW, get_linear_schedule_with_warmup
 from sklearn.preprocessing import LabelEncoder
-from sklearn.model_selection import train_test_split
 from sklearn.metrics import f1_score
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -21,10 +20,8 @@ df["task_1"] = label_encoder.fit_transform(df["task_1"])
 df_test["task_1"] = label_encoder.fit_transform(df_test["task_1"])
 
 # Split the data into training and validation sets
-train_texts, val_texts, train_labels, val_labels = train_test_split(df['tweet'], df['task_1'], test_size=0.3)
-
-#train_texts, train_labels   = (df['tweet'], df['task_1'])
-#val_texts, val_labels = (df_test['tweet'], df_test['task_1'])
+train_texts, train_labels   = (df['tweet'], df['task_1'])
+val_texts, val_labels = (df_test['tweet'], df_test['task_1'])
 # Convert the labels to PyTorch tensors
 # train_labels = torch.tensor(train_labels)
 # val_labels = torch.tensor(val_labels)
@@ -32,7 +29,7 @@ train_texts, val_texts, train_labels, val_labels = train_test_split(df['tweet'],
 # Load the pre-trained BERT model and tokenizer
 model_name = 'bert-base-uncased'
 tokenizer = BertTokenizer.from_pretrained(model_name)
-model = BertForSequenceClassification.from_pretrained(model_name, num_labels=2).to(device)
+model = torch.load('Bert-task_1.pt')
 
 # Tokenize the texts and encode the labels
 train_encodings = tokenizer(train_texts.tolist(), truncation=True, padding=True)
@@ -56,52 +53,23 @@ val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
 val_loader = list(val_loader)
 
 
-
-
-### Train the model ###
-epochs = 4
-optimizer = torch.optim.AdamW(model.parameters(), lr=0.00005)
-total_steps = len(train_loader) * epochs
-scheduler = get_linear_schedule_with_warmup(optimizer, num_warmup_steps=0, num_training_steps=total_steps)
-criterion = torch.nn.CrossEntropyLoss()
-
-for epoch in range(epochs):
-    model.train()
-    train_loss = 0
-    for batch in train_loader:
+# Evaluate the model on the validation set after each epoch
+model.eval()
+val_loss = 0
+val_correct = 0
+with torch.no_grad():
+    for batch in val_loader:
         inputs = {'input_ids': batch[0].to(device),
-                  'attention_mask': batch[1].to(device),
-                  'labels': batch[2].to(device)}
-        optimizer.zero_grad()
+                    'attention_mask': batch[1].to(device),
+                    'labels': batch[2].to(device)}
         outputs = model(**inputs)
-        loss = outputs[0]
-        train_loss += loss.item()
-        loss.backward()
-        optimizer.step()
-        scheduler.step()
+        #loss = outputs[0]
+        #val_loss += loss.item()
+        preds = torch.argmax(outputs[1], dim=1)
+        val_correct += torch.sum(preds == batch[2])
     
-    # Evaluate the model on the validation set after each epoch
-    model.eval()
-    val_loss = 0
-    val_correct = 0
-    with torch.no_grad():
-        for batch in val_loader:
-            inputs = {'input_ids': batch[0].to(device),
-                      'attention_mask': batch[1].to(device),
-                      'labels': batch[2].to(device)}
-            outputs = model(**inputs)
-            loss = outputs[0]
-            val_loss += loss.item()
-            preds = torch.argmax(outputs[1], dim=1)
-            val_correct += torch.sum(preds == batch[2])
+#val_loss /= len(val_loader)
+val_acc = val_correct / len(val_dataset)
     
-    train_loss /= len(train_loader)
-    val_loss /= len(val_loader)
-    val_acc = val_correct / len(val_dataset)
-    
-    print(f'Epoch {epoch + 1}:')
-    print(f'Training Loss: {train_loss:.4f}')
-    print(f'Validation Loss: {val_loss:.4f}')
-    print(f'Validation Accuracy: {val_acc:.4f}')
-
-torch.save(model, 'Bert-task_1.pt')
+#print(f'Test Loss: {val_loss:.4f}')
+print(f'Test Accuracy: {val_acc:.4f}')
