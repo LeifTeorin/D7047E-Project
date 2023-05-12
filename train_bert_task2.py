@@ -66,6 +66,7 @@ criterion = torch.nn.CrossEntropyLoss()
 for epoch in range(epochs):
     model.train()
     train_loss = 0
+    train_f1 = 0
     for batch in train_loader:
         inputs = {'input_ids': batch[0].to(device),
                   'attention_mask': batch[1].to(device),
@@ -77,10 +78,14 @@ for epoch in range(epochs):
         loss.backward()
         optimizer.step()
         scheduler.step()
+        # Compute f1_score
+        preds = torch.argmax(outputs[1], dim=1)
+        train_f1 += f1_score(batch[2].cpu(), preds.cpu(), average='macro')
     
     # Evaluate the model on the validation set after each epoch
     model.eval()
     val_loss = 0
+    val_f1 = 0
     val_correct = 0
     with torch.no_grad():
         for batch in val_loader:
@@ -92,14 +97,19 @@ for epoch in range(epochs):
             val_loss += loss.item()
             preds = torch.argmax(outputs[1], dim=1)
             val_correct += torch.sum(preds == batch[2])
+
+            # Compute f1_score
+            val_f1 += f1_score(batch[2].cpu(), preds.cpu(), average='macro')
     
     train_loss /= len(train_loader)
+    train_f1 /= len(train_loader)
     val_loss /= len(val_loader)
+    val_f1 /= len(val_loader)
     val_acc = val_correct / len(val_dataset)
     
     print(f'Epoch {epoch + 1}:')
-    print(f'Training Loss: {train_loss:.4f}')
-    print(f'Validation Loss: {val_loss:.4f}')
+    print(f'Training Loss {train_loss:.4f}, Training F1: {train_f1:.4f}')
+    print(f'Validation Loss {val_loss:.4f}, Validation F1: {val_f1:.4f}')
     print(f'Validation Accuracy: {val_acc:.4f}')
 
 torch.save(model, 'Bert-task_2.pt')

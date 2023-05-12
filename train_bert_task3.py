@@ -10,21 +10,16 @@ from sklearn.metrics import f1_score
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Using device: {device}")
 
-df = pd.read_csv('preprocessed_hasoc_dataset_task1.csv', sep= ',')
-df_test = pd.read_csv('preprocessed_hasoc_test_dataset_task1.csv', sep= ',')
+df = pd.read_csv('preprocessed_hasoc_dataset_task3.csv', sep= ',')
+df_test = pd.read_csv('preprocessed_hasoc_test_dataset_task3.csv', sep= ',')
 
 label_encoder = LabelEncoder()
-print(df.columns)
-print(df['task_1'])
-print(df_test.columns)
-df["task_1"] = label_encoder.fit_transform(df["task_1"])
-df_test["task_1"] = label_encoder.fit_transform(df_test["task_1"])
+df["task_3"] = label_encoder.fit_transform(df["task_3"])
+df_test["task_3"] = label_encoder.fit_transform(df_test["task_3"])
 
 # Split the data into training and validation sets
-train_texts, val_texts, train_labels, val_labels = train_test_split(df['tweet'], df['task_1'], test_size=0.3)
+train_texts, val_texts, train_labels, val_labels = train_test_split(df['tweet'], df['task_3'], test_size=0.3)
 
-#train_texts, train_labels   = (df['tweet'], df['task_1'])
-#val_texts, val_labels = (df_test['tweet'], df_test['task_1'])
 # Convert the labels to PyTorch tensors
 # train_labels = torch.tensor(train_labels)
 # val_labels = torch.tensor(val_labels)
@@ -32,7 +27,7 @@ train_texts, val_texts, train_labels, val_labels = train_test_split(df['tweet'],
 # Load the pre-trained BERT model and tokenizer
 model_name = 'bert-base-uncased'
 tokenizer = BertTokenizer.from_pretrained(model_name)
-model = BertForSequenceClassification.from_pretrained(model_name, num_labels=2).to(device)
+model = BertForSequenceClassification.from_pretrained(model_name, num_labels=3).to(device)
 
 # Tokenize the texts and encode the labels
 train_encodings = tokenizer(train_texts.tolist(), truncation=True, padding=True)
@@ -59,8 +54,8 @@ val_loader = list(val_loader)
 
 
 ### Train the model ###
-epochs = 4
-optimizer = torch.optim.AdamW(model.parameters(), lr=0.00005)
+epochs = 3
+optimizer = torch.optim.AdamW(model.parameters(), lr=0.00001)
 total_steps = len(train_loader) * epochs
 scheduler = get_linear_schedule_with_warmup(optimizer, num_warmup_steps=0, num_training_steps=total_steps)
 criterion = torch.nn.CrossEntropyLoss()
@@ -114,4 +109,4 @@ for epoch in range(epochs):
     print(f'Validation Loss {val_loss:.4f}, Validation F1: {val_f1:.4f}')
     print(f'Validation Accuracy: {val_acc:.4f}')
 
-torch.save(model, 'Bert-task_1.pt')
+torch.save(model, 'Bert-task_3.pt')
