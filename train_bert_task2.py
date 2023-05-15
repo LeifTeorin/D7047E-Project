@@ -11,18 +11,13 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Using device: {device}")
 
 df = pd.read_csv('preprocessed_hasoc_dataset_task2.csv', sep= ',')
-df_test = pd.read_csv('preprocessed_hasoc_test_dataset_task2.csv', sep= ',')
 
 label_encoder = LabelEncoder()
 df["task_2"] = label_encoder.fit_transform(df["task_2"])
-df_test["task_2"] = label_encoder.fit_transform(df_test["task_2"])
 
 # Split the data into training and validation sets
 train_texts, val_texts, train_labels, val_labels = train_test_split(df['tweet'], df['task_2'], test_size=0.3)
 
-
-#train_texts, train_labels   = (df['tweet'], df['task_2'])
-#val_texts, val_labels = (df_test['tweet'], df_test['task_2'])
 # Convert the labels to PyTorch tensors
 # train_labels = torch.tensor(train_labels)
 # val_labels = torch.tensor(val_labels)
