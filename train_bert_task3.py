@@ -53,7 +53,7 @@ val_loader = list(val_loader)
 
 ### Train the model ###
 epochs = 3
-optimizer = torch.optim.AdamW(model.parameters(), lr=0.00001)
+optimizer = torch.optim.AdamW(model.parameters(), lr=0.00001, weight_decay = 0.1)
 total_steps = len(train_loader) * epochs
 scheduler = get_linear_schedule_with_warmup(optimizer, num_warmup_steps=0, num_training_steps=total_steps)
 criterion = torch.nn.CrossEntropyLoss()

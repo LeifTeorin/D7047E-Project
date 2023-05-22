@@ -1,0 +1,50 @@
+{
+    "os": "Windows-10-10.0.19045-SP0",
+    "python": "3.11.0",
+    "heartbeatAt": "2023-05-22T18:14:17.381625",
+    "startedAt": "2023-05-22T18:14:17.191692",
+    "docker": null,
+    "cuda": null,
+    "args": [],
+    "state": "running",
+    "program": "C:\\Users\\hjall\\Documents\\GitHub\\D7047E-Project\\cnn_hate_speech_detection.py",
+    "codePath": "cnn_hate_speech_detection.py",
+    "git": {
+        "remote": "https://github.com/LeifTeorin/D7047E-Project.git",
+        "commit": "96ec8d1341185a0f12ae2f2c4c7f60630c7a270b"
+    },
+    "email": "hjalle2000@gmail.com",
+    "root": "C:/Users/hjall/Documents/GitHub/D7047E-Project",
+    "host": "DESKTOP-QD8LU56",
+    "username": "hjall",
+    "executable": "C:\\Users\\hjall\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+    "cpu_count": 8,
+    "cpu_count_logical": 16,
+    "cpu_freq": {
+        "current": 2904.0,
+        "min": 0.0,
+        "max": 2904.0
+    },
+    "cpu_freq_per_core": [
+        {
+            "current": 2904.0,
+            "min": 0.0,
+            "max": 2904.0
+        }
+    ],
+    "disk": {
+        "total": 930.7539024353027,
+        "used": 908.2248611450195
+    },
+    "gpu": "NVIDIA GeForce RTX 3060 Ti",
+    "gpu_count": 1,
+    "gpu_devices": [
+        {
+            "name": "NVIDIA GeForce RTX 3060 Ti",
+            "memory_total": 8589934592
+        }
+    ],
+    "memory": {
+        "total": 15.915412902832031
+    }
+}
