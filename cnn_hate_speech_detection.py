@@ -242,6 +242,27 @@ maxlen = 100
 X_train = pad_sequences(X_train, padding='post', maxlen=maxlen)
 X_test = pad_sequences(X_test, padding='post', maxlen=maxlen)
 
+#word embedding
+embeddings_index = {}
+embedding_dim = 100  # Change the dimension based on the downloaded file
+
+with open('glove.6B.100d.txt', encoding='utf-8') as f:
+    for line in f:
+        values = line.split()
+        word = values[0]
+        coefs = np.asarray(values[1:], dtype='float32')
+        embeddings_index[word] = coefs
+
+# Create the embedding matrix
+num_words = len(tokenizer.word_index) + 1
+embedding_matrix = np.zeros((num_words, embedding_dim))
+
+for word, i in tokenizer.word_index.items():
+    embedding_vector = embeddings_index.get(word)
+    if embedding_vector is not None:
+        embedding_matrix[i] = embedding_vector
+
+
 # Build the model
 model = tf.keras.models.Sequential([
     tf.keras.layers.Embedding(5000, 128, input_length=maxlen),
